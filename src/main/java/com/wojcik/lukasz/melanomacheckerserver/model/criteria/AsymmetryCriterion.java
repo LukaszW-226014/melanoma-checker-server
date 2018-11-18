@@ -1,4 +1,6 @@
 package com.wojcik.lukasz.melanomacheckerserver.model.criteria;
 
 public interface AsymmetryCriterion {
+
+    Float detectAsymmetry();
 }

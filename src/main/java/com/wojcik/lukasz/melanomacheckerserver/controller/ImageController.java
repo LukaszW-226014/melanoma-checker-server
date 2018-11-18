@@ -11,15 +11,19 @@ import java.util.List;
 public class ImageController {
     private final ImageRepository repository;
 
+    private MelanomaDetector melanomaDetector;
+
     @Autowired
-    public ImageController(ImageRepository repository) {
+    public ImageController(ImageRepository repository, MelanomaDetector melanomaDetector) {
         this.repository = repository;
+        this.melanomaDetector = melanomaDetector;
     }
 
     // Aggregate root
 
     @GetMapping("/images")
     List<Image> all() {
+        melanomaDetector.testCV();
         return repository.findAll();
     }
 
