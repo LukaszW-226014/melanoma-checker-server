@@ -1,33 +1,46 @@
 package com.wojcik.lukasz.melanomacheckerserver.controller;
 
-import com.wojcik.lukasz.melanomacheckerserver.model.criteria.*;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
+import com.wojcik.lukasz.melanomacheckerserver.model.entity.Mole;
+import com.wojcik.lukasz.melanomacheckerserver.model.repository.ImageRepository;
+import com.wojcik.lukasz.melanomacheckerserver.service.CriteryServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.time.LocalDate;
 
 @Component
-public class MelanomaDetector implements AsymmetryCriterion, BorderCriterion, ColourCriterion, DiameterCriterion, EvolutionCriterion {
+public class MelanomaDetector {
 
+    private static final Float A_CRITERION_MULTIPLEXER = 1.3F;
+    private static final Float B_CRITERION_MULTIPLEXER = 0.1F;
+    private static final Float C_CRITERION_MULTIPLEXER = 0.5F;
+    private static final Float D_CRITERION_MULTIPLEXER = 0.5F;
+    private static final Float E_CRITERION_MULTIPLEXER = 0.5F;
 
+    private final ImageRepository repository;
 
-    @Override
-    public Float detectAsymmetry() {
-        return null;
+    private CriteryServiceImpl criteryServiceImpl;
+
+    @Autowired
+    public MelanomaDetector(ImageRepository repository, CriteryServiceImpl criteryServiceImpl) {
+        this.repository = repository;
+        this.criteryServiceImpl = criteryServiceImpl;
     }
 
-    public Float checkCarcinogenicity() {
-        detectAsymmetry();
-        return null;
-    }
+    public Mole checkCancerAndSaveResult(File file, boolean isEvolve) {
+        Float asymmetryPoints = criteryServiceImpl.detectAsymmetry(file);
+        Float borderPoints = criteryServiceImpl.detectBorder(file);
+        Float colourPoints = criteryServiceImpl.detectColour(file);
+        Float diameterPoints = criteryServiceImpl.detectDiameter(file);
+        Float evolutionPoints = criteryServiceImpl.detectEvolution(isEvolve);
 
-    public void testCV() {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        Mat mat = Mat.eye(3, 3, CvType.CV_8UC1);
-        System.out.println("mat = " + mat.dump());
+        Float resultScore = A_CRITERION_MULTIPLEXER * asymmetryPoints
+                + B_CRITERION_MULTIPLEXER * borderPoints
+                + C_CRITERION_MULTIPLEXER * colourPoints
+                + D_CRITERION_MULTIPLEXER * diameterPoints
+                + E_CRITERION_MULTIPLEXER * evolutionPoints;
 
-        File file = new File()
+        return repository.save(new Mole(file.getName(), null, LocalDate.now(), null, asymmetryPoints, borderPoints, colourPoints, diameterPoints, evolutionPoints, resultScore));
     }
 }

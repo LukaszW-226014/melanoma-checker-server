@@ -1,6 +1,6 @@
 package com.wojcik.lukasz.melanomacheckerserver.model.initData;
 
-import com.wojcik.lukasz.melanomacheckerserver.model.entity.Image;
+import com.wojcik.lukasz.melanomacheckerserver.model.entity.Mole;
 import com.wojcik.lukasz.melanomacheckerserver.model.repository.ImageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -14,8 +14,8 @@ public class LoadH2Database {
     @Bean
     CommandLineRunner initDatabase(ImageRepository repository) {
         return args -> {
-            log.info("Preloading " + repository.save(new Image("img1")));
-            log.info("Preloading " + repository.save(new Image("img2")));
+            log.info("Preloading " + repository.save(new Mole("img1")));
+            log.info("Preloading " + repository.save(new Mole("img2")));
         };
     }
 }

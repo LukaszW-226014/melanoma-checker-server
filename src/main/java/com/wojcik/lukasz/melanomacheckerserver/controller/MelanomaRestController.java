@@ -1,20 +1,22 @@
 package com.wojcik.lukasz.melanomacheckerserver.controller;
 
-import com.wojcik.lukasz.melanomacheckerserver.model.entity.Image;
+import com.wojcik.lukasz.melanomacheckerserver.model.entity.Mole;
 import com.wojcik.lukasz.melanomacheckerserver.model.repository.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
 import java.util.List;
 
 @RestController
-public class ImageController {
+public class MelanomaRestController {
+
     private final ImageRepository repository;
 
     private MelanomaDetector melanomaDetector;
 
     @Autowired
-    public ImageController(ImageRepository repository, MelanomaDetector melanomaDetector) {
+    public MelanomaRestController(ImageRepository repository, MelanomaDetector melanomaDetector) {
         this.repository = repository;
         this.melanomaDetector = melanomaDetector;
     }
@@ -22,36 +24,41 @@ public class ImageController {
     // Aggregate root
 
     @GetMapping("/images")
-    List<Image> all() {
-        melanomaDetector.testCV();
+    List<Mole> all() {
+        melanomaDetector.checkCancerAndSaveResult(new File(""), true);
         return repository.findAll();
     }
 
+    @GetMapping("/detect/{file}/{isEvolve}")
+    Mole detect(@PathVariable String file, @PathVariable boolean isEvolve) {
+        return melanomaDetector.checkCancerAndSaveResult(new File(file), isEvolve);
+    }
+
     @PostMapping("/images")
-    Image newImage(@RequestBody Image newImage) {
-        return repository.save(newImage);
+    Mole newImage(@RequestBody Mole newMole) {
+        return repository.save(newMole);
     }
 
     // Single item
 
     @GetMapping("/images/{id}")
-    Image one(@PathVariable Long id) {
+    Mole one(@PathVariable Long id) {
 
         return repository.findById(id)
                 .orElseThrow(() -> new ImageNotFoundException(id));
     }
 
     @PutMapping("/images/{id}")
-    Image replaceImage(@RequestBody Image newImage, @PathVariable Long id) {
+    Mole replaceImage(@RequestBody Mole newMole, @PathVariable Long id) {
 
         return repository.findById(id)
-                .map(Image -> {
-                    Image.setName(newImage.getName());
-                    return repository.save(Image);
+                .map(Mole -> {
+                    Mole.setName(newMole.getName());
+                    return repository.save(Mole);
                 })
                 .orElseGet(() -> {
-                    newImage.setId(id);
-                    return repository.save(newImage);
+                    newMole.setId(id);
+                    return repository.save(newMole);
                 });
     }
 
