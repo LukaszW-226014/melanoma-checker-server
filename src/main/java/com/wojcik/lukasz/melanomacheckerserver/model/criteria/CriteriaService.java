@@ -2,7 +2,7 @@ package com.wojcik.lukasz.melanomacheckerserver.model.criteria;
 
 import java.io.File;
 
-public interface CriteryService {
+public interface CriteriaService {
 
     Float detectAsymmetry(File file);
 
@@ -10,7 +10,7 @@ public interface CriteryService {
 
     Float detectColour(File file);
 
-    Float detectDiameter(File file);
+    Float detectDiameter(Integer sizeId);
 
-    Float detectEvolution(boolean isEvolve);
+    Float detectEvolution(Boolean isEvolve);
 }

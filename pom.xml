@@ -63,6 +63,11 @@
             <artifactId>opencv-platform</artifactId>
             <version>3.4.3-1.4.3</version>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
     </dependencies>
 
     <build>
