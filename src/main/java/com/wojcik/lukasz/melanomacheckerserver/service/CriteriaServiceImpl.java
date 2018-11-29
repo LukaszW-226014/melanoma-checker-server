@@ -1,6 +1,7 @@
 package com.wojcik.lukasz.melanomacheckerserver.service;
 
 import com.wojcik.lukasz.melanomacheckerserver.model.criteria.CriteriaService;
+import com.wojcik.lukasz.melanomacheckerserver.model.detector.ColorDetection;
 import com.wojcik.lukasz.melanomacheckerserver.model.detector.DiameterDetection;
 import com.wojcik.lukasz.melanomacheckerserver.model.detector.EvolutionDetection;
 import org.apache.commons.io.FileUtils;
@@ -90,7 +91,7 @@ public class CriteriaServiceImpl implements CriteriaService {
         FileUtils.cleanDirectory(new File(DATA_WRITE_PATH));
     }
 
-    public void testDetectMethod(String inputFileName) throws IOException {
+    public void testDetectBorderMethod(String inputFileName) throws IOException {
         clearWriteDirectory();
         initCvLib();
         try {
@@ -153,35 +154,86 @@ public class CriteriaServiceImpl implements CriteriaService {
         }
     }
 
-    @Override
-    public Float detectAsymmetry(File file) {
-        return 2.1F;
-    }
-
-    @Override
-    public Float detectBorder(File file) {
-        return 0.3F;
-    }
-
-    @Override
-    public Float detectColour(File file) {
+    public void testDetectAsymetryMethod(String inputFileName) throws IOException {
+        clearWriteDirectory();
+        initCvLib();
         try {
-            clearWriteDirectory();
-            initCvLib();
+            Mat image1 = Imgcodecs.imread(DATA_READ_PATH + inputFileName);
+            Mat image = new Mat();
+            Imgproc.GaussianBlur(image1, image, new Size(5, 5), 0);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            Imgcodecs.imwrite(DATA_WRITE_PATH + "8end.png", image);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
-        return 1.1F;
+    }
+
+    public void testDetectBorderMethod2(String inputFileName) throws IOException {
+        clearWriteDirectory();
+        initCvLib();
+        try {
+            Mat image = Imgcodecs.imread(DATA_READ_PATH + inputFileName);
+            // convert to grayscale
+            Mat gray = new Mat();
+            Imgproc.cvtColor(image, gray, Imgproc.COLOR_RGB2GRAY);
+            Imgcodecs.imwrite(DATA_WRITE_PATH + "1gray.png", gray);
+            // gaussian filter
+            Mat gaussian = new Mat();
+            Imgproc.GaussianBlur(gray, gaussian, new Size(5, 5), 2);
+            Imgcodecs.imwrite(DATA_WRITE_PATH + "2gaussian.png", gaussian);
+            // threshold
+            Mat threshold = new Mat();
+            Imgproc.threshold(gaussian, threshold, 127, 255, Imgproc.THRESH_BINARY_INV);
+            Imgcodecs.imwrite(DATA_WRITE_PATH + "3threshold.png", threshold);
+
+            List<MatOfPoint> contours = new ArrayList<>();
+            Mat hierarhy = new Mat();
+            Imgproc.findContours(threshold, contours, hierarhy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+            Mat img = new Mat();
+            Mat color = new Mat();
+            Imgproc.cvtColor(img, color, Imgproc.COLOR_GRAY2RGB);
+            Imgproc.drawContours(color, contours, -1, new Scalar(0, 255, 0), 2);
+            Imgcodecs.imwrite(DATA_WRITE_PATH + "4contours.png", color);
+            for (MatOfPoint point : contours) {
+                Imgproc.boundingRect(point);
+            }
+
+
+            //Imgcodecs.imwrite(DATA_WRITE_PATH + "8end.png", image);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    //FIXME take photo from mobile request
+    public void testDetectColorMethod(String inputFileName) throws IOException {
+        clearWriteDirectory();
+        new ColorDetection().detect(inputFileName);
     }
 
     @Override
-    public Float detectDiameter(Integer sizeValue) {
+    public Integer detectAsymmetry(File file) {
+        return 2;
+    }
+
+    @Override
+    public Integer detectBorder(File file) {
+        return 0;
+    }
+
+    @Override
+    public Integer detectColour(File file) {
+        return new ColorDetection().detect("xx");
+    }
+
+    @Override
+    public Integer detectDiameter(Integer sizeValue) {
         return new DiameterDetection().detect(sizeValue);
     }
 
     @Override
-    public Float detectEvolution(Boolean isEvolve) {
+    public Integer detectEvolution(Boolean isEvolve) {
         return new EvolutionDetection().detect(isEvolve);
     }
 }
