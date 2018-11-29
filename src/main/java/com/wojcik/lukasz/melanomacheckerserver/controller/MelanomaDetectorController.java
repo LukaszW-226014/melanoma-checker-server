@@ -2,15 +2,16 @@ package com.wojcik.lukasz.melanomacheckerserver.controller;
 
 import com.wojcik.lukasz.melanomacheckerserver.model.entity.Mole;
 import com.wojcik.lukasz.melanomacheckerserver.model.repository.ImageRepository;
-import com.wojcik.lukasz.melanomacheckerserver.service.CriteryServiceImpl;
+import com.wojcik.lukasz.melanomacheckerserver.service.CriteriaServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 
 @Component
-public class MelanomaDetector {
+public class MelanomaDetectorController {
 
     private static final Float A_CRITERION_MULTIPLEXER = 1.3F;
     private static final Float B_CRITERION_MULTIPLEXER = 0.1F;
@@ -20,20 +21,20 @@ public class MelanomaDetector {
 
     private final ImageRepository repository;
 
-    private CriteryServiceImpl criteryServiceImpl;
+    private CriteriaServiceImpl criteriaServiceImpl;
 
     @Autowired
-    public MelanomaDetector(ImageRepository repository, CriteryServiceImpl criteryServiceImpl) {
+    public MelanomaDetectorController(ImageRepository repository, CriteriaServiceImpl criteriaServiceImpl) {
         this.repository = repository;
-        this.criteryServiceImpl = criteryServiceImpl;
+        this.criteriaServiceImpl = criteriaServiceImpl;
     }
 
-    public Mole checkCancerAndSaveResult(File file, boolean isEvolve) {
-        Float asymmetryPoints = criteryServiceImpl.detectAsymmetry(file);
-        Float borderPoints = criteryServiceImpl.detectBorder(file);
-        Float colourPoints = criteryServiceImpl.detectColour(file);
-        Float diameterPoints = criteryServiceImpl.detectDiameter(file);
-        Float evolutionPoints = criteryServiceImpl.detectEvolution(isEvolve);
+    public Mole checkCancerAndSaveResult(File file, Integer sizeId, Boolean isEvolve) {
+        Float asymmetryPoints = criteriaServiceImpl.detectAsymmetry(file);
+        Float borderPoints = criteriaServiceImpl.detectBorder(file);
+        Float colourPoints = criteriaServiceImpl.detectColour(file);
+        Float diameterPoints = criteriaServiceImpl.detectDiameter(sizeId);
+        Float evolutionPoints = criteriaServiceImpl.detectEvolution(isEvolve);
 
         Float resultScore = A_CRITERION_MULTIPLEXER * asymmetryPoints
                 + B_CRITERION_MULTIPLEXER * borderPoints
@@ -42,5 +43,9 @@ public class MelanomaDetector {
                 + E_CRITERION_MULTIPLEXER * evolutionPoints;
 
         return repository.save(new Mole(file.getName(), null, LocalDate.now(), null, asymmetryPoints, borderPoints, colourPoints, diameterPoints, evolutionPoints, resultScore));
+    }
+
+    public void testCase(String fileName) throws IOException {
+        criteriaServiceImpl.testDetectMethod(fileName);
     }
 }

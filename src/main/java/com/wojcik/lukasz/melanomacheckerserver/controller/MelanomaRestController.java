@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -13,25 +14,35 @@ public class MelanomaRestController {
 
     private final ImageRepository repository;
 
-    private MelanomaDetector melanomaDetector;
+    private MelanomaDetectorController melanomaDetectorController;
 
     @Autowired
-    public MelanomaRestController(ImageRepository repository, MelanomaDetector melanomaDetector) {
+    public MelanomaRestController(ImageRepository repository, MelanomaDetectorController melanomaDetectorController) {
         this.repository = repository;
-        this.melanomaDetector = melanomaDetector;
+        this.melanomaDetectorController = melanomaDetectorController;
     }
 
     // Aggregate root
 
     @GetMapping("/images")
     List<Mole> all() {
-        melanomaDetector.checkCancerAndSaveResult(new File(""), true);
+        melanomaDetectorController.checkCancerAndSaveResult(new File(""), 1, true);
         return repository.findAll();
     }
 
     @GetMapping("/detect/{file}/{isEvolve}")
     Mole detect(@PathVariable String file, @PathVariable boolean isEvolve) {
-        return melanomaDetector.checkCancerAndSaveResult(new File(file), isEvolve);
+        return melanomaDetectorController.checkCancerAndSaveResult(new File(file), 1, isEvolve);
+    }
+
+    @GetMapping("/test/{fileName}")
+    List<Mole> testKurwa(@PathVariable String fileName) {
+        try {
+            melanomaDetectorController.testCase(fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return repository.findAll();
     }
 
     @PostMapping("/images")
