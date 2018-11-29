@@ -30,11 +30,11 @@ public class MelanomaDetectorController {
     }
 
     public Mole checkCancerAndSaveResult(File file, Integer sizeId, Boolean isEvolve) {
-        Float asymmetryPoints = criteriaServiceImpl.detectAsymmetry(file);
-        Float borderPoints = criteriaServiceImpl.detectBorder(file);
-        Float colourPoints = criteriaServiceImpl.detectColour(file);
-        Float diameterPoints = criteriaServiceImpl.detectDiameter(sizeId);
-        Float evolutionPoints = criteriaServiceImpl.detectEvolution(isEvolve);
+        Float asymmetryPoints = criteriaServiceImpl.detectAsymmetry(file).floatValue();
+        Float borderPoints = criteriaServiceImpl.detectBorder(file).floatValue();
+        Float colourPoints = criteriaServiceImpl.detectColour(file).floatValue();
+        Float diameterPoints = criteriaServiceImpl.detectDiameter(sizeId).floatValue();
+        Float evolutionPoints = criteriaServiceImpl.detectEvolution(isEvolve).floatValue();
 
         Float resultScore = A_CRITERION_MULTIPLEXER * asymmetryPoints
                 + B_CRITERION_MULTIPLEXER * borderPoints
@@ -46,6 +46,8 @@ public class MelanomaDetectorController {
     }
 
     public void testCase(String fileName) throws IOException {
-        criteriaServiceImpl.testDetectMethod(fileName);
+        //criteriaServiceImpl.testDetectBorderMethod(fileName);
+        criteriaServiceImpl.testDetectColorMethod(fileName);
+        //criteriaServiceImpl.testDetectBorderMethod2(fileName);
     }
 }

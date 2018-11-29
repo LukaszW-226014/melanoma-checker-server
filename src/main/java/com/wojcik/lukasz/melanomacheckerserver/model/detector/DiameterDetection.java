@@ -8,17 +8,17 @@ import lombok.Data;
 public class DiameterDetection implements DetectionAware<Integer> {
 
     @Override
-    public Float detect(Integer parameter) {
+    public Integer detect(Integer parameter) {
         if (parameter.equals(DiameterType.EXTRA_SMALL.getValue())) {
-            return DiameterType.EXTRA_SMALL.getValue().floatValue();
+            return DiameterType.EXTRA_SMALL.getValue();
         } else if (parameter.equals(DiameterType.SMALL.getValue())) {
-            return DiameterType.SMALL.getValue().floatValue();
+            return DiameterType.SMALL.getValue();
         } else if (parameter.equals(DiameterType.MEDIUM.getValue())) {
-            return DiameterType.MEDIUM.getValue().floatValue();
+            return DiameterType.MEDIUM.getValue();
         } else if (parameter.equals(DiameterType.LARGE.getValue())) {
-            return DiameterType.LARGE.getValue().floatValue();
+            return DiameterType.LARGE.getValue();
         } else if (parameter.equals(DiameterType.EXTRA_LARGE.getValue())) {
-            return DiameterType.EXTRA_LARGE.getValue().floatValue();
+            return DiameterType.EXTRA_LARGE.getValue();
         } else {
             throw new IllegalDiameterSizeException(parameter);
         }

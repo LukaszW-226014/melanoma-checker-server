@@ -7,11 +7,11 @@ import lombok.Data;
 public class EvolutionDetection implements DetectionAware<Boolean> {
 
     @Override
-    public Float detect(Boolean parameter) {
+    public Integer detect(Boolean parameter) {
         if (parameter) {
-            return EvolutionType.EVOLVE.getValue().floatValue();
+            return EvolutionType.EVOLVE.getValue();
         } else {
-            return EvolutionType.NOT_EVOLVE.getValue().floatValue();
+            return EvolutionType.NOT_EVOLVE.getValue();
         }
     }
 }

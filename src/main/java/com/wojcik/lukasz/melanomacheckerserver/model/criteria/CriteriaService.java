@@ -4,13 +4,13 @@ import java.io.File;
 
 public interface CriteriaService {
 
-    Float detectAsymmetry(File file);
+    Integer detectAsymmetry(File file);
 
-    Float detectBorder(File file);
+    Integer detectBorder(File file);
 
-    Float detectColour(File file);
+    Integer detectColour(File file);
 
-    Float detectDiameter(Integer sizeId);
+    Integer detectDiameter(Integer sizeId);
 
-    Float detectEvolution(Boolean isEvolve);
+    Integer detectEvolution(Boolean isEvolve);
 }
