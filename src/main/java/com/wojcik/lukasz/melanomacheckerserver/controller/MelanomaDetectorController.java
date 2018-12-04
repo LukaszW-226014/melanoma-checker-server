@@ -46,8 +46,8 @@ public class MelanomaDetectorController {
     }
 
     public void testCase(String fileName) throws IOException {
-        //criteriaServiceImpl.testDetectBorderMethod(fileName);
-        criteriaServiceImpl.testDetectColorMethod(fileName);
+        criteriaServiceImpl.testDetectBorderMethod(fileName);
+        //criteriaServiceImpl.testDetectColorMethod(fileName);
         //criteriaServiceImpl.testDetectBorderMethod2(fileName);
     }
 }

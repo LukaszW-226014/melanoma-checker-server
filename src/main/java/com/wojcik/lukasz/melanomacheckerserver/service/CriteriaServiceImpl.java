@@ -24,7 +24,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -98,6 +97,7 @@ public class CriteriaServiceImpl implements CriteriaService {
             // read image
             Mat image = Imgcodecs.imread(DATA_READ_PATH + inputFileName);
             // convert to grayscale
+            //Mat image = new Mat(image1, new Rect(100,100,image1.cols()-300, image1.rows()-200));
             Mat gray = new Mat();
             Imgproc.cvtColor(image, gray, Imgproc.COLOR_RGB2GRAY);
             Imgcodecs.imwrite(DATA_WRITE_PATH + "1gray.png", gray);
@@ -118,28 +118,14 @@ public class CriteriaServiceImpl implements CriteriaService {
 //            Imgproc.GaussianBlur(threshold, threshold, new Size(5, 5), 2);
 //            Imgcodecs.imwrite(DATA_WRITE_PATH + "4denoisedThresh.png", threshold);
             // invert
-            Mat mask = new Mat(threshold.rows() + 2, threshold.cols() + 2, CvType.CV_8U, Scalar.all(0));
+            Mat mask = new Mat(threshold.rows() + 2, threshold.cols() + 2, CvType.CV_8U);
             Mat floodFill = threshold.clone();
-            Imgproc.floodFill(floodFill, mask, new Point(0, 0), new Scalar(255), new Rect(), new Scalar(0),
-                    new Scalar(0), 4 | Imgproc.FLOODFILL_MASK_ONLY);
+            Imgproc.floodFill(floodFill, mask, new Point(0, 0), new Scalar(255));
             Imgcodecs.imwrite(DATA_WRITE_PATH + "5floodFill.png", floodFill);
             Mat invertedFloodFill = new Mat();
             Core.bitwise_not(floodFill, invertedFloodFill);
             Imgcodecs.imwrite(DATA_WRITE_PATH + "6inverted.png", invertedFloodFill);
-            List<MatOfPoint> contours = new ArrayList<>();
-            Imgproc.findContours(threshold, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-            System.out.println(contours.toString());
-            double maxArea = 0;
-            MatOfPoint max_contour = new MatOfPoint();
-            Iterator<MatOfPoint> iterator = contours.iterator();
-            while (iterator.hasNext()) {
-                MatOfPoint contour = iterator.next();
-                double area = Imgproc.contourArea(contour);
-                if (area > maxArea) {
-                    maxArea = area;
-                    max_contour = contour;
-                }
-            }
+
             // fill mole
             Mat filledMole = new Mat();
             Core.bitwise_or(threshold, invertedFloodFill, filledMole);
@@ -148,6 +134,11 @@ public class CriteriaServiceImpl implements CriteriaService {
             Mat laplacian = new Mat();
             Imgproc.Laplacian(filledMole, laplacian, CvType.CV_64F);
             Imgcodecs.imwrite(DATA_WRITE_PATH + "8laplacian.png", laplacian);
+
+            List<MatOfPoint> contours = new ArrayList<>();
+            //Imgproc.findContours(filledMole, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+            //Imgproc.convexHull(contours, new MatOfInt());
+
 
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
@@ -184,20 +175,21 @@ public class CriteriaServiceImpl implements CriteriaService {
             Imgcodecs.imwrite(DATA_WRITE_PATH + "2gaussian.png", gaussian);
             // threshold
             Mat threshold = new Mat();
-            Imgproc.threshold(gaussian, threshold, 127, 255, Imgproc.THRESH_BINARY_INV);
+            Imgproc.threshold(gaussian, threshold, 100, 255, Imgproc.THRESH_BINARY_INV);
             Imgcodecs.imwrite(DATA_WRITE_PATH + "3threshold.png", threshold);
 
             List<MatOfPoint> contours = new ArrayList<>();
             Mat hierarhy = new Mat();
             Imgproc.findContours(threshold, contours, hierarhy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
             Mat img = new Mat();
-            Mat color = new Mat();
-            Imgproc.cvtColor(img, color, Imgproc.COLOR_GRAY2RGB);
+            Mat color = new Mat(threshold.rows(), threshold.cols(), CvType.CV_8UC3);
+            System.out.println(contours);
+            //Imgproc.cvtColor(img, color, Imgproc.COLOR_GRAY2RGB);
             Imgproc.drawContours(color, contours, -1, new Scalar(0, 255, 0), 2);
             Imgcodecs.imwrite(DATA_WRITE_PATH + "4contours.png", color);
-            for (MatOfPoint point : contours) {
-                Imgproc.boundingRect(point);
-            }
+//            for (MatOfPoint point : contours) {
+//                Imgproc.boundingRect(point);
+//            }
 
 
             //Imgcodecs.imwrite(DATA_WRITE_PATH + "8end.png", image);
